@@ -18,22 +18,7 @@ export default {
   privateRepo: process.env.UPDATES_PRIVATE_REPO || false,
   patterns: {
     darwin: {
-      dmg: /-osx\.dmg/,
-      zip: /-osx\.zip/
-    },
-    win32: {
-      installer: /-win32-setup\.exe/,
-      zip: /-win32-portable\.zip/
-    },
-    linux: {
-      deb: {
-        i386: /-linux-i386\.deb/,
-        amd64: /-linux-amd64\.deb/
-      },
-      rpm: {
-        i386: /-linux-i386\.rpm/,
-        x86_64: /-linux-x86_64\.rpm/
-      }
+      dmg: /Negative-v\d+\.\d+\.\d+\.dmg/,
     }
   },
   mirrors: process.env.MIRROR_NAMES
