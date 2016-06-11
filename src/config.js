@@ -19,7 +19,7 @@ export default {
   patterns: {
     darwin: {
       dmg: /Negative-v\d+\.\d+\.\d+\.dmg/,
-      zip: /Negative-v\d+\.\d+\.\d+\.dmg/
+      zip: /Negative-v\d+\.\d+\.\d+\.zip/
     }
   },
   mirrors: process.env.MIRROR_NAMES
