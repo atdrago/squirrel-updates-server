@@ -22,5 +22,7 @@ export default {
       zip: /Negative-v\d+\.\d+\.\d+\.zip/
     }
   },
-  mirrors: process.env.MIRROR_NAMES
+  mirrors: process.env.MIRROR_NAMES,
+  channels: ['dev', 'beta', 'stable'],
+  defaultChannel: 'stable'
 };

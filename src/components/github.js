@@ -19,16 +19,18 @@ function getReleasesByPage(page, callback) {
   }, function(err, result) {
     if (err) {
       callback(err);
-    } else if (result.meta.link && result.meta.link.includes('rel="next"')) {
-      getReleasesByPage(page + 1, function(err2, releases) {
-        if (err2) {
-          callback(err2);
-        } else {
-          callback(null, result.concat(releases));
-        }
-      });
     } else {
-      callback(null, result || []);
+      // Exclude drafts
+      result = result && result.filter(r => !r.draft) || [];
+
+      if (result.meta && result.meta.link && result.meta.link.includes('rel="next"')) {
+        getReleasesByPage(page + 1, function(err2, releases) {
+          if (err2) callback(err2);
+          else callback(null, result.concat(releases));
+        });
+      } else {
+        callback(null, result);
+      }
     }
   });
 }
@@ -42,19 +44,19 @@ function getLatestReleaseForChannel(channel, page, callback) {
     if (err) {
       callback(err);
     } else {
-      const invertedChannels = {
-        dev: [],
-        beta: ['dev'],
-        stable: ['beta', 'dev']
-      };
+      // Exclude drafts
+      releases = releases && releases.filter(r => !r.draft) || [];
 
+      const channelIndex = config.channels.indexOf(channel);
       const release = releases.find(release => {
-        return !invertedChannels[channel].find(ic => release.name.includes(ic));
+        const releaseChannel = config.channels.find(c => release.name.includes(c)) || config.defaultChannel;
+        const releaseChannelIndex = config.channels.indexOf(releaseChannel);
+        return channelIndex <= releaseChannelIndex;
       });
 
       if (release) {
         callback(null, release);
-      } else if (releases.meta.link && releases.meta.link.includes('rel="next"')) {
+      } else if (releases.meta && releases.meta.link && releases.meta.link.includes('rel="next"')) {
         getLatestReleaseForChannel(channel, page + 1, callback);
       } else {
         callback(null, null);
@@ -85,15 +87,16 @@ export function getReleaseByTag(tag) {
   });
 }
 
-export function getLatestRelease(channel = 'dev') {
-  if (channel == 'dev') {
+export function getLatestRelease(channel = config.channels[0]) {
+  if (channel == config.channels[0]) {
+    // Request the latest release directly
     return new Promise(function(resolve, reject) {
       github.repos.getLatestRelease({
         user: config.user,
         repo: config.repo
-      }, function(err, result) {
+      }, function(err, release) {
         if (err) reject(err);
-        else resolve(result);
+        else resolve(release);
       });
     });
   }
